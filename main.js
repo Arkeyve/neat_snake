@@ -16,6 +16,19 @@ window.onload = function() {
     var direction = "R";
     var scoreboard = document.getElementById("score");
 
+    // document.addEventListener("keydown", function(e) {
+    //     var dir = e.keyCode;
+    //     if(dir === 37 && snakes[0].direction != "R") {
+    //         snakes[0].direction = "L";
+    //     } else if(dir === 38 && snakes[0].direction != "D") {
+    //         snakes[0].direction = "U";
+    //     } else if(dir === 39 && snakes[0].direction != "L") {
+    //         snakes[0].direction = "R";
+    //     } else if(dir === 40 && snakes[0].direction != "U") {
+    //         snakes[0].direction = "D";
+    //     }
+    // });
+
     function startGame() {
         for(let i = 0; i < 10; i++) {
             snakes.push(new Snake(xCells, yCells));
@@ -36,16 +49,14 @@ window.onload = function() {
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // draw background
+
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         for(let snake = 0; snake < snakes.length; snake++) {
-            // draw apple
             ctx.fillStyle = "#f00";
             ctx.fillRect(snakes[snake].apple.x * unit, snakes[snake].apple.y * unit, unit, unit);
-            // draw snake
+
             ctx.fillStyle = "#ffffffaa";
-            //console.log(snakes);
 
             for(i in snakes[snake].snakeBody) {
                 ctx.fillRect(snakes[snake].snakeBody[i].x * unit, snakes[snake].snakeBody[i].y * unit, unit, unit);
@@ -53,7 +64,6 @@ window.onload = function() {
             snakes[snake].moveSnake();
             var collisionType = snakes[snake].collision();
             if(collisionType === "S") {
-                //scores.push(Number.parseInt(scoreboard.value));
                 snakes[snake].getScore();
                 deadSnakes.push(snakes[snake]);
                 stopGame(snakes[snake]);
