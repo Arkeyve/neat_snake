@@ -16,23 +16,39 @@ window.onload = function() {
     var direction = "R";
     var scoreboard = document.getElementById("score");
 
-    // document.addEventListener("keydown", function(e) {
-    //     var dir = e.keyCode;
-    //     if(dir === 37 && snakes[0].direction != "R") {
-    //         snakes[0].direction = "L";
-    //     } else if(dir === 38 && snakes[0].direction != "D") {
-    //         snakes[0].direction = "U";
-    //     } else if(dir === 39 && snakes[0].direction != "L") {
-    //         snakes[0].direction = "R";
-    //     } else if(dir === 40 && snakes[0].direction != "U") {
-    //         snakes[0].direction = "D";
-    //     }
-    // });
+    var snakesPerGen = 1000;
+    var maxGen = 2000;
+    var currentGen = 1;
 
-    function startGame() {
-        for(let i = 0; i < 10; i++) {
-            snakes.push(new Snake(xCells, yCells));
+    var loop;
+
+    function newGeneration() {
+        deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
+        console.log("Generation " + currentGen + "/" + maxGen + ": ");
+        if(deadSnakes[0]) console.log("Max Score: " + deadSnakes[0].score);
+        if(deadSnakes[0]) console.log("Max Survival Time: " + deadSnakes[0].survivalTime);
+        if(deadSnakes[0]) console.log("Max Length: " + (deadSnakes[0].snakeBody.length - 1));
+        // console.log(deadSnakes[0]);
+        console.log("Going to next generation: " + Math.floor(snakesPerGen / 3));
+        startGame();
+        loop = setInterval(draw, 10);
+    }
+
+    function startGame() {deadSnakes
+        let i = 0;
+        snakes = [];
+        if(deadSnakes.length > 0) {
+            for(; i < Math.floor(snakesPerGen / 3); i++) {
+                // console.log("deadSnakes[i]: " + deadSnakes[i].score);
+                snakes.push(new Snake([xCells, yCells, deadSnakes[i]]));
+            }
         }
+        deadSnakes = [];
+        for(; i < snakesPerGen; i++) {
+            snakes.push(new Snake([xCells, yCells]));
+        }
+        // console.log(snakes[0]);
+        document.getElementById('currentGen').value = currentGen;
     }
 
     function stopGame(snake) {
@@ -66,7 +82,7 @@ window.onload = function() {
             if(collisionType === "S") {
                 snakes[snake].getScore();
                 deadSnakes.push(snakes[snake]);
-                stopGame(snakes[snake]);
+                // stopGame(snakes[snake]);
                 snakes[snake].kill();
                 snakes.splice(snake, 1);
             } else if(collisionType === "A") {
@@ -83,10 +99,14 @@ window.onload = function() {
         }
         if(snakes.length === 0) {
             clearInterval(loop);
+            if(currentGen < maxGen) {
+                newGeneration();
+                currentGen++;
+                document.getElementById('currentGen').value = currentGen;
+                // new generation
+            }
         }
     }
 
-    startGame();
-    //reset();
-    var loop = setInterval(draw, 100);
+    newGeneration();
 };

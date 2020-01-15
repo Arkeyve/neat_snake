@@ -1,24 +1,39 @@
+len_w = 10;
+time_w = 1;
 class Snake {
-    constructor(xCells, yCells) {
+    constructor(params) {
+        let xCells = params[0];
+        let yCells = params[1];
+        let oldSnake = params[2];
+
         this.score = 0;
         this.xCells = xCells;
         this.yCells = yCells;
         this.direction = "R";
-        this.brain = new NeuralNetwork([8, 8, 4]);
+        this.brain = oldSnake ? new NeuralNetwork([[8, 8, 4], oldSnake.brain]) : new NeuralNetwork([[8, 8, 4]]);
+        this.survivalTime = 0;
+
         this.closestKill = {
             "U": 0,
             "R": 1,
             "D": 1,
             "L": 0
         };
+
         this.apple = {
             x: Math.floor(Math.random() * this.xCells),
             y: Math.floor(Math.random() * this.yCells)
         };
+
         this.snakeBody = [{
             x: Math.floor(Math.random() * this.xCells),
             y: Math.floor(Math.random() * this.yCells)
         }];
+
+        this.snakeBody.unshift({
+            x: this.snakeBody[0].x - 1,
+            y: this.snakeBody[0].y
+        });
     }
 
     resetApple() {
@@ -51,6 +66,7 @@ class Snake {
             });
         }
         this.getClosestKill();
+        this.survivalTime++;
     }
 
     collision() {
@@ -129,17 +145,16 @@ class Snake {
 
         let dirTemplate = ["U", "R", "D", "L"];
         this.direction = dirTemplate[output.indexOf(Math.max(...output))];
-
-        console.log(this.direction);
-        console.log(output);
     }
 
     getScore() {
-        this.score = this.snakeBody.length - 1;
+        this.score = (len_w * (this.snakeBody.length - 1)) + (time_w * this.survivalTime);
+        // this.score = (this.snakeBody.length - 1) + this.survivalTime;
         return this.score;
     }
 
     kill() {
         //console.log(this);
+        // clearInterval(this.survivalInterval);
     }
 }

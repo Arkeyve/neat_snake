@@ -5,12 +5,16 @@ output = [...];
 */
 
 class NeuralNetwork {
-    constructor(layers) {
+    constructor(params) {
+        let layers = params[0];
+        let oldNN = params[1];
+
         this.layers = [];
         this.aVectors = [];
-        this.thetaMatrices = [];
+        this.thetaMatrices = oldNN ? oldNN.thetaMatrices : [];
 
         this.activationFunction = function(z) {
+            // return 1 / 1 + e^(-z)
             return 1 / (1 + Math.pow(Math.E, (z * -1)));
         }
 
@@ -18,7 +22,9 @@ class NeuralNetwork {
             this.layers.push(new Array(layers[i]));
         }
 
-        this.initializeTheta();
+        if(!oldNN) {
+            this.initializeTheta();
+        }
     }
 
     setActivationFunction(func) {
@@ -42,6 +48,8 @@ class NeuralNetwork {
 
     predict() {
         for(let i = 1; i < this.layers.length; i++) {
+            // a[0] -> inputs
+            // a[i] = g(theta[i-1] * a[i-1])
             this.aVectors[i] = (math.multiply(this.thetaMatrices[i - 1], this.aVectors[i - 1])).map(this.activationFunction);
             if(i === this.layers.length - 1) {
                 return this.aVectors[i];
