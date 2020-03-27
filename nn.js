@@ -34,7 +34,7 @@ class NeuralNetwork {
     }
 
     input(inputVector) {
-        this.layers[0] = inputVector;
+        this.layers[0] = inputVector._data;
         this.aVectors[0] = inputVector;
     }
 

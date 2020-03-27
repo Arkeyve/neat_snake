@@ -2,15 +2,18 @@
     <head>
         <title>Snake</title>
         <script src="./math.min.js" charset="utf-8"></script>
+        <script src="./Chart.min.js" charset="utf-8"></script>
         <script src="./nn.js" charset="utf-8"></script>
         <script src="./snake.js" charset="utf-8"></script>
+        <script src="./line_chart.js" charset="utf-8"></script>
         <script src="./main.js" charset="utf-8"></script>
     </head>
-    <body style="background-color: #000; text-align: center; font-family: monospace; font-size: 20px;">
+    <body style="background-color: #000; font-family: monospace; font-size: 20px; padding: 15px 30px 15px 30px;">
         <canvas id="canvas" height="1000" width="1000" style="border: 10px solid #fff">
             Browser does not support canvas
         </canvas>
-        <<div style="text-align: center; color: #fff;">
+        <<div style="color: #fff;">
             GEN: <input type="text" disabled="" value="" id="currentGen" style="background-color: #000; color: #fff; text-decoration: bold; border: none; width: auto; font-size: 20px; font-family: monospace;"/>
         </div>
+        <canvas id="lineChart" width="200" height="100" style="width: 1000px;"></canvas>
 </html>

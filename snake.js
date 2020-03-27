@@ -1,5 +1,5 @@
-len_w = 10;
-time_w = 1;
+len_w = 100;
+time_w = -1;
 class Snake {
     constructor(params) {
         let xCells = params[0];
@@ -31,7 +31,7 @@ class Snake {
         }];
 
         this.snakeBody.unshift({
-            x: this.snakeBody[0].x - 1,
+            x: this.snakeBody[0].x + 1,
             y: this.snakeBody[0].y
         });
     }
@@ -70,6 +70,10 @@ class Snake {
     }
 
     collision() {
+        if(this.getScore() < 0) {
+            return "S";
+        }
+
         if(this.snakeBody[0].x === this.apple.x && this.snakeBody[0].y === this.apple.y) {
             return "A";
         }
@@ -138,6 +142,7 @@ class Snake {
         input[5] = this.closestKill["R"] / this.xCells;
         input[6] = this.closestKill["D"] / this.yCells;
         input[7] = this.closestKill["L"] / this.xCells;
+        input = math.matrix(input);
 
         this.brain.input(input);
         let output = this.brain.predict();

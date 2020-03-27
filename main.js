@@ -1,5 +1,6 @@
 var snakes = [];
 var deadSnakes = [];
+window.snakeMaxGenScores = [];
 window.onload = function() {
     var iter = 0;
     var itermax;
@@ -16,25 +17,35 @@ window.onload = function() {
     var direction = "R";
     var scoreboard = document.getElementById("score");
 
-    var snakesPerGen = 1000;
-    var maxGen = 2000;
+    var snakesPerGen = 2000;
+    var maxGen = 20000;
     var currentGen = 1;
+
+    var genScores = [];
+    var genRange = [0, 0];
 
     var loop;
 
     function newGeneration() {
         deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
         console.log("Generation " + currentGen + "/" + maxGen + ": ");
-        if(deadSnakes[0]) console.log("Max Score: " + deadSnakes[0].score);
-        if(deadSnakes[0]) console.log("Max Survival Time: " + deadSnakes[0].survivalTime);
-        if(deadSnakes[0]) console.log("Max Length: " + (deadSnakes[0].snakeBody.length - 1));
+        if(deadSnakes[0]) {
+            console.log("Max Score: " + deadSnakes[0].score);
+            console.log("Max Survival Time: " + deadSnakes[0].survivalTime);
+            console.log("Max Length: " + (deadSnakes[0].snakeBody.length - 1));
+            genScores.push(deadSnakes[0].score);
+            genRange[0] = Math.min(...genScores);
+            genRange[1] = Math.max(...genScores);
+            window.updateLineCtx(genRange[1], currentGen);
+        }
+        console.log(genRange);
         // console.log(deadSnakes[0]);
         console.log("Going to next generation: " + Math.floor(snakesPerGen / 3));
         startGame();
-        loop = setInterval(draw, 10);
+        loop = setInterval(draw, 1);
     }
 
-    function startGame() {deadSnakes
+    function startGame() {
         let i = 0;
         snakes = [];
         if(deadSnakes.length > 0) {
@@ -72,8 +83,8 @@ window.onload = function() {
             ctx.fillStyle = "#f00";
             ctx.fillRect(snakes[snake].apple.x * unit, snakes[snake].apple.y * unit, unit, unit);
 
-            ctx.fillStyle = "#ffffffaa";
-
+            ctx.fillStyle = "hsla(" + ((snakes[snake].getScore() / genRange[1]) * 255) + ", 100%, 40%, 0.5)";
+            // ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
             for(i in snakes[snake].snakeBody) {
                 ctx.fillRect(snakes[snake].snakeBody[i].x * unit, snakes[snake].snakeBody[i].y * unit, unit, unit);
             }
@@ -92,11 +103,15 @@ window.onload = function() {
                 snakes[snake].decideNextMove();
             }
         }
-        for(let snake = 0; snake < deadSnakes.length; snake++) {
-            for(i in deadSnakes[snake].snakeBody) {
+
+        let snake = deadSnakes.length - 1;
+        ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
+        for(i in deadSnakes[snake].snakeBody) {
+            if(i !== 0) {
                 ctx.fillRect(deadSnakes[snake].snakeBody[i].x * unit, deadSnakes[snake].snakeBody[i].y * unit, unit, unit);
             }
         }
+
         if(snakes.length === 0) {
             clearInterval(loop);
             if(currentGen < maxGen) {
@@ -108,5 +123,6 @@ window.onload = function() {
         }
     }
 
+    window.loadLineCtx();
     newGeneration();
 };
