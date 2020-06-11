@@ -9,7 +9,7 @@ window.onload = function() {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
 
-    var unit = 10;
+    var unit = 100;
     var xCells = canvas.width / unit;
     var yCells = canvas.height / unit;
 
@@ -17,30 +17,57 @@ window.onload = function() {
     var direction = "R";
     var scoreboard = document.getElementById("score");
 
-    var snakesPerGen = 2000;
+    var snakesPerGen = 5;
     var maxGen = 20000;
     var currentGen = 1;
+    var mutationIntensity = 1;
 
     var genScores = [];
     var genRange = [0, 0];
+    var maxScoreSnake;
 
     var loop;
+    document.getElementById('maxGen').value = maxGen;
 
     function newGeneration() {
-        deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
-        console.log("Generation " + currentGen + "/" + maxGen + ": ");
-        if(deadSnakes[0]) {
-            console.log("Max Score: " + deadSnakes[0].score);
-            console.log("Max Survival Time: " + deadSnakes[0].survivalTime);
-            console.log("Max Length: " + (deadSnakes[0].snakeBody.length - 1));
-            genScores.push(deadSnakes[0].score);
+        // deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
+        var maxScore = 0;
+        for(let i = 0; i < deadSnakes.length; i++) {
+            if(deadSnakes[i].score > maxScore) {
+                maxScore = deadSnakes[i].score;
+                maxScoreSnake = new Snake([xCells, yCells, deadSnakes[i], mutationIntensity]);
+            }
+        }
+        // console.log("Generation " + currentGen + "/" + maxGen + ": ");
+        if(maxScoreSnake) {
+            // console.log("Max Score: " + maxScoreSnake.score);
+            // console.log("Max Survival Time: " + maxScoreSnake.survivalTime);
+            // console.log("Max Length: " + (maxScoreSnake.snakeBody.length - 1));
+            genScores.push(maxScore);
             genRange[0] = Math.min(...genScores);
             genRange[1] = Math.max(...genScores);
-            window.updateLineCtx(genRange[1], currentGen);
+            window.updateLineCtx(maxScore, genRange[1], math.mean(genScores), currentGen);
+            if(currentGen % 100 === 0) {
+                var outfile_json = {
+                    "thetaMatrices": maxScoreSnake.brain.thetaMatrices,
+                    "biases": maxScoreSnake.brain.biases
+                }
+                var file = new Blob([JSON.stringify(outfile_json)], {type: 'text/plain'});
+                var a = document.createElement("a");
+                var url = URL.createObjectURL(file);
+                a.href = url;
+                a.download = "output/" + (new Date()).getTime() + "_gen" + currentGen + "_deadSnake0_weights.txt";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+            }
         }
-        console.log(genRange);
-        // console.log(deadSnakes[0]);
-        console.log("Going to next generation: " + Math.floor(snakesPerGen / 3));
+        // console.log(genRange);
+        // console.log(maxScoreSnake);
+        // console.log("Going to next generation: " + Math.floor(snakesPerGen / 3));
         startGame();
         loop = setInterval(draw, 1);
     }
@@ -48,17 +75,17 @@ window.onload = function() {
     function startGame() {
         let i = 0;
         snakes = [];
+        // mutate all based on best performer
         if(deadSnakes.length > 0) {
-            for(; i < Math.floor(snakesPerGen / 3); i++) {
+            for(; i < snakesPerGen; i++) {
                 // console.log("deadSnakes[i]: " + deadSnakes[i].score);
-                snakes.push(new Snake([xCells, yCells, deadSnakes[i]]));
+                snakes.push(new Snake([xCells, yCells, maxScoreSnake, mutationIntensity]));
             }
         }
-        deadSnakes = [];
+        // fill remaining slots
         for(; i < snakesPerGen; i++) {
             snakes.push(new Snake([xCells, yCells]));
         }
-        // console.log(snakes[0]);
         document.getElementById('currentGen').value = currentGen;
     }
 
@@ -83,8 +110,8 @@ window.onload = function() {
             ctx.fillStyle = "#f00";
             ctx.fillRect(snakes[snake].apple.x * unit, snakes[snake].apple.y * unit, unit, unit);
 
-            ctx.fillStyle = "hsla(" + ((snakes[snake].getScore() / genRange[1]) * 255) + ", 100%, 40%, 0.5)";
-            // ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
+            //ctx.fillStyle = "hsla(" + ((snakes[snake].getScore() / genRange[1]) * 255) + ", 100%, 40%, 0.5)";
+            ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
             for(i in snakes[snake].snakeBody) {
                 ctx.fillRect(snakes[snake].snakeBody[i].x * unit, snakes[snake].snakeBody[i].y * unit, unit, unit);
             }

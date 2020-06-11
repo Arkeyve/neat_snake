@@ -7,7 +7,19 @@ var config = {
             label: 'Max Score per Gen',
             backgroundColor: "#f00",
             borderColor: "#f00",
-            data: [0],
+            data: [],
+            fill: false,
+        }, {
+            label: 'Max Score of All Gen',
+            backgroundColor: "#0f0",
+            borderColor: "#0f0",
+            data: [],
+            fill: false,
+        }, {
+            label: 'Mean Score of All Gen',
+            backgroundColor: "#ff0",
+            borderColor: "#ff0",
+            data: [],
             fill: false,
         }]
     },
@@ -45,11 +57,12 @@ window.loadLineCtx = function() {
     window.maxScoreChart = new Chart(lineCtx, config);
 };
 
-window.updateLineCtx = function(maxScore, gen) {
+window.updateLineCtx = function(maxScore, maxScoreOfAllGen, meanScoreOfAllGen, gen) {
     if (config.data.datasets.length > 0) {
-        config.data.datasets.forEach(function(dataset) {
-            dataset.data.push(maxScore);
-        });
+        config.data.datasets[0].data.push(maxScore);
+        config.data.datasets[1].data.push(maxScoreOfAllGen);
+        config.data.datasets[2].data.push(meanScoreOfAllGen);
+
         config.data.labels.push(gen);
 
         window.maxScoreChart.update();
