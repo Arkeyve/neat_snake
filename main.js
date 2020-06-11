@@ -17,7 +17,7 @@ window.onload = function() {
     var direction = "R";
     var scoreboard = document.getElementById("score");
 
-    var snakesPerGen = 5;
+    var snakesPerGen = 200;
     var maxGen = 20000;
     var currentGen = 1;
     var mutationIntensity = 1;
@@ -56,7 +56,7 @@ window.onload = function() {
                 var a = document.createElement("a");
                 var url = URL.createObjectURL(file);
                 a.href = url;
-                a.download = "output/" + (new Date()).getTime() + "_gen" + currentGen + "_deadSnake0_weights.txt";
+                a.download = "output_" + (new Date()).getTime() + "_gen" + currentGen + "_deadSnake0_weights.txt";
                 document.body.appendChild(a);
                 a.click();
                 setTimeout(function() {
