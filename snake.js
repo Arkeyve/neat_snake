@@ -1,5 +1,5 @@
 len_w = 100;
-time_w = -1;
+time_w = -5;
 class Snake {
     constructor(params) {
         let xCells = params[0];

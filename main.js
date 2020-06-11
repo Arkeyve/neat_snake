@@ -22,9 +22,11 @@ window.onload = function() {
     var currentGen = 1;
     var mutationIntensity = 1;
 
+    var len_w = 100;
     var genScores = [];
     var genRange = [0, 0];
     var maxScoreSnake;
+    var maxLen;
 
     var loop;
     document.getElementById('maxGen').value = maxGen;
@@ -32,9 +34,11 @@ window.onload = function() {
     function newGeneration() {
         // deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
         var maxScore = 0;
+        var maxLen = 0;
         for(let i = 0; i < deadSnakes.length; i++) {
             if(deadSnakes[i].score > maxScore) {
                 maxScore = deadSnakes[i].score;
+                maxLen = deadSnakes[i].snakeBody.length - 1;
                 maxScoreSnake = new Snake([xCells, yCells, deadSnakes[i], mutationIntensity]);
             }
         }
@@ -46,7 +50,7 @@ window.onload = function() {
             genScores.push(maxScore);
             genRange[0] = Math.min(...genScores);
             genRange[1] = Math.max(...genScores);
-            window.updateLineCtx(maxScore, genRange[1], math.mean(genScores), currentGen);
+            window.updateLineCtx(maxScore, (len_w * maxLen), math.mean(genScores), currentGen);
             if(currentGen % 100 === 0) {
                 var outfile_json = {
                     "thetaMatrices": maxScoreSnake.brain.thetaMatrices,

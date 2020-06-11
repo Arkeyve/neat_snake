@@ -10,7 +10,7 @@ var config = {
             data: [],
             fill: false,
         }, {
-            label: 'Max Score of All Gen',
+            label: 'Max Length per Gen',
             backgroundColor: "#0f0",
             borderColor: "#0f0",
             data: [],
