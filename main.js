@@ -9,7 +9,7 @@ window.onload = function() {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
 
-    var unit = 100;
+    var unit = 50;
     var xCells = canvas.width / unit;
     var yCells = canvas.height / unit;
 
@@ -28,8 +28,19 @@ window.onload = function() {
     var maxScoreSnake;
     var maxLen;
 
+    var viewOnlyOne = false;
+
     var loop;
     document.getElementById('maxGen').value = maxGen;
+
+    document.getElementById('speedSlider').addEventListener('change', function(e) {
+        clearInterval(loop);
+        loop = setInterval(draw, (1000 - e.target.value));
+    });
+
+    document.getElementById('onlyOne').addEventListener('click', function(e) {
+        viewOnlyOne = !viewOnlyOne;
+    });
 
     function newGeneration() {
         // deadSnakes = deadSnakes.sort((a, b) => (a.score > b.score) ? 1 : -1).reverse();
@@ -42,11 +53,7 @@ window.onload = function() {
                 maxScoreSnake = new Snake([xCells, yCells, deadSnakes[i], mutationIntensity]);
             }
         }
-        // console.log("Generation " + currentGen + "/" + maxGen + ": ");
         if(maxScoreSnake) {
-            // console.log("Max Score: " + maxScoreSnake.score);
-            // console.log("Max Survival Time: " + maxScoreSnake.survivalTime);
-            // console.log("Max Length: " + (maxScoreSnake.snakeBody.length - 1));
             genScores.push(maxScore);
             genRange[0] = Math.min(...genScores);
             genRange[1] = Math.max(...genScores);
@@ -54,7 +61,9 @@ window.onload = function() {
             if(currentGen % 100 === 0) {
                 var outfile_json = {
                     "thetaMatrices": maxScoreSnake.brain.thetaMatrices,
-                    "biases": maxScoreSnake.brain.biases
+                    "biases": maxScoreSnake.brain.biases,
+                    "maxScore": maxScore,
+                    "maxLen": maxLen
                 }
                 var file = new Blob([JSON.stringify(outfile_json)], {type: 'text/plain'});
                 var a = document.createElement("a");
@@ -69,11 +78,8 @@ window.onload = function() {
                 }, 0);
             }
         }
-        // console.log(genRange);
-        // console.log(maxScoreSnake);
-        // console.log("Going to next generation: " + Math.floor(snakesPerGen / 3));
         startGame();
-        loop = setInterval(draw, 1);
+        loop = setInterval(draw, (1000 - document.getElementById('speedSlider').value));
     }
 
     function startGame() {
@@ -82,7 +88,6 @@ window.onload = function() {
         // mutate all based on best performer
         if(deadSnakes.length > 0) {
             for(; i < snakesPerGen; i++) {
-                // console.log("deadSnakes[i]: " + deadSnakes[i].score);
                 snakes.push(new Snake([xCells, yCells, maxScoreSnake, mutationIntensity]));
             }
         }
@@ -112,12 +117,16 @@ window.onload = function() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         for(let snake = 0; snake < snakes.length; snake++) {
             ctx.fillStyle = "#f00";
-            ctx.fillRect(snakes[snake].apple.x * unit, snakes[snake].apple.y * unit, unit, unit);
+            if(snake === 0 || !viewOnlyOne) {
+                ctx.fillRect(snakes[snake].apple.x * unit, snakes[snake].apple.y * unit, unit, unit);
+            }
 
             //ctx.fillStyle = "hsla(" + ((snakes[snake].getScore() / genRange[1]) * 255) + ", 100%, 40%, 0.5)";
             ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
             for(i in snakes[snake].snakeBody) {
-                ctx.fillRect(snakes[snake].snakeBody[i].x * unit, snakes[snake].snakeBody[i].y * unit, unit, unit);
+                if(snake === 0 || !viewOnlyOne) {
+                    ctx.fillRect(snakes[snake].snakeBody[i].x * unit, snakes[snake].snakeBody[i].y * unit, unit, unit);
+                }
             }
             snakes[snake].moveSnake();
             var collisionType = snakes[snake].collision();
@@ -135,12 +144,15 @@ window.onload = function() {
             }
         }
 
-        let snake = deadSnakes.length - 1;
-        ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
-        for(i in deadSnakes[snake].snakeBody) {
-            if(i !== 0) {
-                ctx.fillRect(deadSnakes[snake].snakeBody[i].x * unit, deadSnakes[snake].snakeBody[i].y * unit, unit, unit);
-            }
+        if(!viewOnlyOne) {
+            // view the last dead snake -- why did I write this?
+            // let snake = deadSnakes.length - 1;
+            // ctx.fillStyle = "hsla(255, 100%, 100%, 0.5)";
+            // for(i in deadSnakes[snake].snakeBody) {
+            //     if(i !== 0) {
+            //         ctx.fillRect(deadSnakes[snake].snakeBody[i].x * unit, deadSnakes[snake].snakeBody[i].y * unit, unit, unit);
+            //     }
+            // }
         }
 
         if(snakes.length === 0) {

@@ -2,7 +2,7 @@
 var config = {
     type: 'line',
     data: {
-        labels: [0],
+        labels: [],
         datasets: [{
             label: 'Max Score per Gen',
             backgroundColor: "#f00",
